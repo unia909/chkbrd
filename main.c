@@ -1,7 +1,6 @@
 #include <Windows.h>
-#include <tchar.h>
 
-#include <stdio.h>
+//#define IMPL_2
 
 #ifdef IMPL_2
 #define MY_VK_CONTROL 162
@@ -13,6 +12,9 @@ LRESULT CALLBACK KeyboardHook(int nCode, WPARAM wParam, LPARAM lParam)
 
     static DWORD firstKeyPressed = 0, firstKeyPressTime = 0;
     LPKBDLLHOOKSTRUCT kbrd = (LPKBDLLHOOKSTRUCT)lParam;
+
+    printf("KEY %lu\n", kbrd->vkCode);
+    fflush(stdout);
 
     if (firstKeyPressed && kbrd->time - firstKeyPressTime < 100)
     {
@@ -40,16 +42,15 @@ LRESULT CALLBACK KeyboardHook(int nCode, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-//int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-int main()
+int WINAPI WinMainCRTStartup()
 {
 #ifndef IMPL_2
     if (!RegisterHotKey(NULL, WM_HOTKEY, MOD_CONTROL | MOD_SHIFT, 0))
     {
-        CHAR buf[98];
-        static LPSTR errorMsg = "Failed to register hotkey Ctrl+Shift!\r\n\r\nError code: 0x%08x (Watch its value on MSDN website)";
-        sprintf(buf, errorMsg, GetLastError());
-        MessageBoxA(NULL, buf, "chkbrd", MB_ICONERROR);
+        TCHAR buf[98];
+        static LPTSTR errorMsg = TEXT("Failed to register hotkey Ctrl+Shift!\r\n\r\nError code: 0x%08x (Watch its value on MSDN website)");
+        wsprintf(buf, errorMsg, GetLastError());
+        MessageBox(NULL, buf, TEXT("chkbrd"), MB_ICONERROR);
         return 1;
     }
 
@@ -67,10 +68,10 @@ int main()
 #ifdef IMPL_2
     if (!SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHook, NULL, 0))
     {
-        CHAR buf[90];
-        static LPSTR errorMsg = "Cannot set keyboard hook!\r\n\r\nError code: 0x%08x (Watch its value on MSDN website)";
-        sprintf(buf, errorMsg, GetLastError());
-        MessageBoxA(NULL, buf, "chkbrd", MB_ICONERROR);
+        TCHAR buf[90];
+        static LPTSTR errorMsg = TEXT("Cannot set keyboard hook!\r\n\r\nError code: 0x%08x (Watch its value on MSDN website)");
+        wsprintf(buf, errorMsg, GetLastError());
+        MessageBox(NULL, buf, TEXT("chkbrd"), MB_ICONERROR);
         return 1;
     }
 
